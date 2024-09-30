@@ -47,6 +47,7 @@ class NeuralNet(nn.Module):
         
         
         method = torch.nn.init.xavier_uniform_(self.fc1.weight)
+        return method
         
         
 
@@ -69,17 +70,18 @@ class NeuralNet(nn.Module):
         - fc1 -> ReLU -> fc2 -> ReLU -> fc3 -> ReLU -> fc4 -> ReLU -> fc5 -> ReLU -> fc6.
         '''
         
-        fc1 = self.fc1(x)
-        relu1 = self.relu(fc1)
-        fc2 = self.fc2(relu1)
-        relu2 = self.relu(fc2)
-        fc3 = self.fc3(relu2)
-        relu3 = self.relu(fc3)
-        fc4 = self.fc4(relu3)
-        relu4 = self.relu(fc4)
-        fc5 = self.fc5(relu4)
-        relu5 = self.relu(fc5)
-        fc6 = self.fc6(relu5)
-        out = self.relu(fc6)
+        x = x.view(x.size(0), -1)
+        
+        x = self.fc1(x)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x = self.relu(x)
+        x = self.fc3(x)
+        x = self.relu(x)
+        x = self.fc4(x)
+        x = self.relu(x)
+        x = self.fc5(x)
+        x = self.relu(x)
+        x = self.fc6(x)
 
-        return out
+        return x

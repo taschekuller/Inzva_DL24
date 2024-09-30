@@ -24,11 +24,12 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
     val_losses = []    
     total_step = len(train_loader)  
 
-    for epoch in range(epochs):
+    for epoch in range(epochs): 
         model.train()  
         running_train_loss = 0.0  
 
         # Training Loop
+        print("****************************OUTSIDE OF LOOP ?????????????????????")
         for i, (images, labels) in enumerate(train_loader):
             # Reshape images and move to device
             images = images.reshape(-1, 32*32*3).to(device)
@@ -41,16 +42,13 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
             loss = loss_fn(outputs, labels)
 
             # Backward pass and optimization
+            # Zero the gradients
+            # Compute gradients
+            # Update the weights
             loss.backward()
             optimizer.step()
-            # Zero the gradients
-            model.zero_grad()
-            # Compute gradients
-            model.backward(loss)
-            # Update the weights
-            model.step()
+            optimizer.zero_grad()
             
-
             running_train_loss += loss.item()  # Accumulate loss
 
             # Print progress for each batch
