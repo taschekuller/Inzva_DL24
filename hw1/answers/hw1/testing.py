@@ -24,28 +24,27 @@ def test_model(device, test_loader):
     num_classes = 10  # Number of classes in CIFAR-10
     classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']  # CIFAR-10 class labels
 
-    # Initiliaze the model and then load the pre-trained model using torch.load
-    model = NeuralNet(input_size, num_classes).to(device)
-    model = torch.load('model/cifar10_model.pt')
-    # Set the model to evaluation mode
+    # Load the pre-trained model
+    model = NeuralNet(input_size=input_size, num_classes=num_classes)
+    model = torch.load('model/cifar10_model.pt', map_location=device)
+    model.eval()  # Set the model to evaluation mode
 
     # Disable gradient computation during testing
     with torch.no_grad():
-        correct = 0  
-        total = 0    
-        figure_idx = 0  
+        correct = 0  # To count the number of correct predictions
+        total = 0    # To count the total number of predictions
+        figure_idx = 0  # For visualizing predictions every 2 batches
 
         # Loop over the test data
         for idx, (images, labels) in enumerate(test_loader):
-            images = images.to(device) # TODO reshape the images and move to the device
-            labels = labels.to(device)
+            images = images.reshape(-1, input_size).to(device)  # Reshape the images and move to the device
+            labels = labels.to(device)  # Move labels to the device
 
             # Forward pass: Compute predicted labels
-            outputs      = model(images)
-            _, predicted = torch.max(outputs, 1)
-
-            total += labels.size(0) 
-            correct += (predicted == labels).sum().item()  
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)  # Get class with the highest probability
+            total += labels.size(0)  # Increment the total count
+            correct += (predicted == labels).sum().item()  # Increment the correct predictions count
 
             # Visualize predictions every 2 batches
             if idx % 2 == 0:

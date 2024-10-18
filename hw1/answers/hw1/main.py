@@ -5,10 +5,6 @@ from utils.data_utils import *
 from utils.viz_utils import *
 from training import train_model
 from testing import test_model
-import torch.optim as optim
-from torch.utils.data import DataLoader
-
-
 
 def main():
     '''
@@ -26,56 +22,46 @@ def main():
 
     input_size = 3*32*32  # CIFAR-10 images are 3-channel RGB images with 32x32 pixels (3*32*32)
     num_classes = 10  # CIFAR-10 has 10 classes
-    epochs = 20
-    batch_size = 32
-    learning_rate = 0.9 
+    epochs = 1  # Number of epochs for training
+    batch_size = 100  # Number of samples per batch
+    learning_rate = 3e-4  # Learning rate for the optimizer
 
     # Define the device for computation (GPU if available, otherwise CPU)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Initialize the model, loss function, and optimizer
-    model = NeuralNet(input_size, num_classes).to(device)
-    loss_fn = nn.CrossEntropyLoss()
-    learning_rate = 0.001 # TODO - Delete this already defined.
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-
+    model = NeuralNet(input_size, num_classes).to(device)  # Move the model to the device
+    criterion = nn.CrossEntropyLoss()  # Define the loss function (CrossEntropy for classification)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  # Choosen optimizer with specified learning rate
 
     # Get the training and test datasets
     train_set, test_set = get_train_and_test_set()
     
-    # print("Train set:", train_set.__len__())
-    # print("Batch size:", batch_size)
-    
-    
     # Create DataLoader for the training set
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True) # TODO - use get_trainloader
+    train_loader = get_trainloader(train_set=train_set, batch_size=batch_size)
     
     # Split the test set into validation and test subsets
-    val_indices, test_indices = split_testset(test_set)
+    val_indices, test_indices = split_testset(test_set=test_set, test_size=0.5)
     
     # Create DataLoaders for validation and test subsets
-    val_loader = DataLoader(test_set, batch_size=batch_size,sampler=val_indices) # TODO - use get_validationloader
-    test_loader = DataLoader(test_set, batch_size=batch_size, sampler=test_indices) # TODO - use get_testloader
-    
-    # TODO: Create DataLoaders for validation and test subsets
     val_loader = get_validationloader(test_set=test_set, val_indices=val_indices, batch_size=batch_size)
     test_loader = get_testloader(test_set=test_set, test_indices=test_indices, batch_size=batch_size)
-    ### END TODO
-    
     
     # Train the model and track losses for each epoch
-    train_losses, val_losses = train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loader )
+    train_losses, val_losses = train_model(model=model,
+                                           device=device,
+                                           epochs=epochs,
+                                           loss_fn=criterion,
+                                           optimizer=optimizer,
+                                           train_loader=train_loader,
+                                           val_loader=val_loader)
     
     # Visualize the training and validation loss curves
-    visualize_train_val_losses(train_losses, val_losses)
-    #
+    visualize_train_val_losses(train_losses=train_losses, val_losses=val_losses)
 
     # Test the model on the test dataset, get visualizations and print accuracy
-    test_model(device=device, test_loader=test_loader)
-    visualize_predictions(device=device, test_loader=test_loader)
-    visualize_train_val_losses(train_losses, val_losses)
-    #
+    test_model(device=device,
+               test_loader=test_loader)
 
 if __name__ == '__main__':
     main()

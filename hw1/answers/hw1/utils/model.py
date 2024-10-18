@@ -21,7 +21,6 @@ class NeuralNet(nn.Module):
         - Consider this as a based architecture we have given you. You can play with it as you want.
         '''
         super(NeuralNet, self).__init__()
-
         # Define the layers
         self.fc1  = nn.Linear(input_size, 800) 
         self.fc2  = nn.Linear(800, 512)
@@ -32,6 +31,7 @@ class NeuralNet(nn.Module):
         self.relu = nn.ReLU()
 
         # Apply the chosen initialization method to the weights
+        self.initialize_weights(method)
     
     def initialize_weights(self, method):
         '''
@@ -44,16 +44,14 @@ class NeuralNet(nn.Module):
             - 'random_normal': Initializes weights from a normal distribution with mean 0 and standard deviation 0.01.
 
         '''
-        
-        
-        method = torch.nn.init.xavier_uniform_(self.fc1.weight)
-        return method
-        
-        
-
-        
-        
-
+        for layer in self.children():
+            if isinstance(layer, nn.Linear):
+                if method == 'xavier':
+                    nn.init.xavier_uniform_(layer.weight)  # Xavier Initialization
+                elif method == 'kaiming':
+                    nn.init.kaiming_uniform_(layer.weight, nonlinearity='relu')  # Kaiming (He) Initialization
+                elif method == 'random_normal':
+                    nn.init.normal_(layer.weight, mean=0.0, std=0.01)  # Random Normal Initialization
 
 
     def forward(self, x):
@@ -69,9 +67,6 @@ class NeuralNet(nn.Module):
         Layers are processed in the following order:
         - fc1 -> ReLU -> fc2 -> ReLU -> fc3 -> ReLU -> fc4 -> ReLU -> fc5 -> ReLU -> fc6.
         '''
-        
-        x = x.view(x.size(0), -1) ## TODO check this WHY?
-        
         out = x
         out = self.relu(self.fc1(out))
         out = self.relu(self.fc2(out))
@@ -79,5 +74,4 @@ class NeuralNet(nn.Module):
         out = self.relu(self.fc4(out))
         out = self.relu(self.fc5(out))
         out = self.relu(self.fc6(out))
-
         return out

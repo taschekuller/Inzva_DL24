@@ -20,21 +20,19 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
     The function also prints the training loss for each step and the validation loss and accuracy after each epoch.
     It saves the model at the end of each epoch to 'models/cifar10_model.pt'.
     '''
-    train_losses = []  
-    val_losses = []    
-    total_step = len(train_loader)  
+    train_losses = []  # List to store training loss for each epoch
+    val_losses = []    # List to store validation loss for each epoch
+    total_step = len(train_loader)  # Total number of training batches in each epoch
 
-    for epoch in range(epochs): 
-        model.train()  
-        running_train_loss = 0.0  
+    for epoch in range(epochs):
+        model.train()  # Set model to training mode
+        running_train_loss = 0.0  # Track training loss for the current epoch
 
         # Training Loop
-        print("****************************OUTSIDE OF LOOP ?????????????????????")
         for i, (images, labels) in enumerate(train_loader):
-            # Reshape images and move to device
-            images = images.reshape(-1, 32*32*3).to(device) # TODO check implementation
-            # Move labels to device
-            labels = labels.to(device)
+            images = images.reshape(images.size(0), -1).to(device)  # Reshape images and move to device
+            labels = labels.to(device)  # Move labels to device
+
             # Forward pass through the model
             outputs = model(images)
 
@@ -42,13 +40,10 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
             loss = loss_fn(outputs, labels)
 
             # Backward pass and optimization
-            # Zero the gradients
-            # Compute gradients
-            # Update the weights
-            optimizer.zero_grad() # TODO - first zero the gradients
-            loss.backward() 
-            optimizer.step()
-            
+            optimizer.zero_grad()  # Zero the gradients
+            loss.backward()        # Compute gradients
+            optimizer.step()       # Update the weights
+
             running_train_loss += loss.item()  # Accumulate loss
 
             # Print progress for each batch
@@ -66,18 +61,17 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
 
         with torch.no_grad():  # Disable gradient computation for validation
             for images, labels in val_loader:
-                # Reshape images and move to device
-                images = images.reshape(-1, 32*32*3).to(device)
-                # Move labels to device
-                labels = labels.to(device)
+                images = images.reshape(images.size(0), -1).to(device)  # Reshape images and move to device
+                labels = labels.to(device)  # Move labels to device
+
                 # Forward pass through the model
-                model.eval() # TODO change into this format outputs = model(images)
+                outputs = model(images)
+
                 # Compute validation loss
-                outputs = model(images)                
+                val_loss += loss_fn(outputs, labels).item()
 
                 # Compute accuracy
-                _, predicted = torch.max(outputs, 1) # Get the class with the highest score using torch.max(outputs, dim=1)
-
+                _, predicted = torch.max(outputs, 1)  # Get the class with the highest score
                 total += labels.size(0)               # Total number of labels
                 correct += (predicted == labels).sum().item()  # Count correct predictions
 
@@ -88,8 +82,7 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
         val_accuracy = 100 * correct / total  # Validation accuracy
         print(f'Epoch [{epoch+1}/{epochs}], Validation Loss: {avg_val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%')
 
-        # Save the model at the end of each epoch as models/cifar10_model.pt
-        model_path = 'models/cifar10_model.pt'
-        torch.save(model, model_path)
+        # Save the model at the end of each epoch
+        torch.save(model, 'model/cifar10_model.pt')
 
-    return train_losses, val_losses # Return the list of training and validation losses
+    return train_losses, val_losses  # Return the list of training and validation losses
