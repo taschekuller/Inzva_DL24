@@ -44,17 +44,18 @@ class NeuralNet(nn.Module):
             - 'random_normal': Initializes weights from a normal distribution with mean 0 and standard deviation 0.01.
 
         '''
-        
-        
-        method = torch.nn.init.xavier_uniform_(self.fc1.weight)
+        # method = torch.nn.init.xavier_uniform_(self.fc1.weight)
+    
+        for layer in self.children():
+            if isinstance(layer, nn.Linear):
+                if method == 'xavier':
+                    nn.init.xavier_uniform_(layer.weight)  # Xavier Initialization
+                elif method == 'kaiming':
+                    nn.init.kaiming_uniform_(layer.weight, nonlinearity='relu')  # Kaiming (He) Initialization
+                elif method == 'random_normal':
+                    nn.init.normal_(layer.weight, mean=0.0, std=0.01)  # Random Normal Initialization
+
         return method
-        
-        
-
-        
-        
-
-
 
     def forward(self, x):
         '''
@@ -69,8 +70,6 @@ class NeuralNet(nn.Module):
         Layers are processed in the following order:
         - fc1 -> ReLU -> fc2 -> ReLU -> fc3 -> ReLU -> fc4 -> ReLU -> fc5 -> ReLU -> fc6.
         '''
-        
-        x = x.view(x.size(0), -1) ## TODO check this WHY?
         
         out = x
         out = self.relu(self.fc1(out))

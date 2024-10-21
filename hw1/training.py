@@ -32,7 +32,7 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
         print("****************************OUTSIDE OF LOOP ?????????????????????")
         for i, (images, labels) in enumerate(train_loader):
             # Reshape images and move to device
-            images = images.reshape(-1, 32*32*3).to(device) # TODO check implementation
+            images = images.reshape(images.size(0), -1).to(device) # TODO check implementation
             # Move labels to device
             labels = labels.to(device)
             # Forward pass through the model
@@ -67,17 +67,16 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
         with torch.no_grad():  # Disable gradient computation for validation
             for images, labels in val_loader:
                 # Reshape images and move to device
-                images = images.reshape(-1, 32*32*3).to(device)
+                images = images.reshape(images.size(0), -1).to(device)
                 # Move labels to device
                 labels = labels.to(device)
                 # Forward pass through the model
-                model.eval() # TODO change into this format outputs = model(images)
+                outputs = model(images)
                 # Compute validation loss
-                outputs = model(images)                
+                val_loss += loss_fn(outputs, labels).item()
 
                 # Compute accuracy
                 _, predicted = torch.max(outputs, 1) # Get the class with the highest score using torch.max(outputs, dim=1)
-
                 total += labels.size(0)               # Total number of labels
                 correct += (predicted == labels).sum().item()  # Count correct predictions
 
@@ -89,7 +88,7 @@ def train_model(model, device, epochs, loss_fn, optimizer, train_loader, val_loa
         print(f'Epoch [{epoch+1}/{epochs}], Validation Loss: {avg_val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%')
 
         # Save the model at the end of each epoch as models/cifar10_model.pt
-        model_path = 'models/cifar10_model.pt'
+        model_path = 'model/cifar10_model.pt'
         torch.save(model, model_path)
 
     return train_losses, val_losses # Return the list of training and validation losses

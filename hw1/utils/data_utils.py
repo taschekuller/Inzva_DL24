@@ -92,7 +92,7 @@ def get_testloader(test_set, test_indices, batch_size):
     The function uses a subset of the test dataset based on the provided indices.
     It does not shuffle the data, as shuffling is unnecessary during testing.
     '''
-    test_set = split_testset(test_set, test_indices)
+    test_set = Subset(test_set, test_indices)
     test_loader = DataLoader(test_set, batch_size=batch_size)
 
     print(f'Number of test samples: {len(test_set)}')

@@ -28,6 +28,7 @@ def test_model(device, test_loader):
     model = NeuralNet(input_size, num_classes).to(device)
     model = torch.load('model/cifar10_model.pt')
     # Set the model to evaluation mode
+    model.eval()
 
     # Disable gradient computation during testing
     with torch.no_grad():
@@ -37,13 +38,12 @@ def test_model(device, test_loader):
 
         # Loop over the test data
         for idx, (images, labels) in enumerate(test_loader):
-            images = images.to(device) # TODO reshape the images and move to the device
+            images = images.reshape(-1, input_size).to(device) # TODO reshape the images and move to the device
             labels = labels.to(device)
 
             # Forward pass: Compute predicted labels
             outputs      = model(images)
             _, predicted = torch.max(outputs, 1)
-
             total += labels.size(0) 
             correct += (predicted == labels).sum().item()  
 
