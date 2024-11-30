@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "dlsg_cnn"
+version = "0.1.0"
+description = "Inzva Deep Learning Study Group CNN Class"
+authors = ["Melih DARCAN <57872471+MelihDarcanxyz@users.noreply.github.com>"]
+license = "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = "^2.4.1"
+torchvision = "^0.19.1"
+numpy = "<2.0.0"
+matplotlib = "^3.9.2"
+keras = "^3.5.0"
+torcheval = "^0.0.7"
+tensorflow = "^2.17.0"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+pdoc = "^14.7.0"
+ruff = "^0.6.8"
+ipykernel = "^6.29.5"
+ipywidgets = "^8.1.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# Ruff linting and formatting
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+extend-select = ["I", "D", "UP"] # I for isort, D for pydocstyle, UP for pyupdate
+extend-ignore = ["D203", "D212"]
+
+# Mypy static type checking
+[tool.mypy]
+python_version = "3.10"
